@@ -1,0 +1,91 @@
+---
+title: "Part 1 Multiple Linear Regression"
+author: "Michelle Lepori-Bui"
+date: "12/5/2020"
+output: html_document
+---
+
+```{r setup, message = FALSE, warning = FALSE, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(palmerpenguins)
+library(GGally)
+library(stargazer)
+```
+
+Colinearity - 
+```{r}
+penguins %>% 
+  select(species, bill_length_mm:body_mass_g) %>% 
+  ggpairs(aes(color=species))
+```
+
+## Build a few different models
+
+body mass will be the dependent variable
+
+```{r}
+lm1 <- lm(body_mass_g ~ flipper_length_mm + species, data = penguins)
+
+lm2 <- lm(body_mass_g ~ flipper_length_mm + species + sex, data = penguins)
+
+lm3 <- lm(body_mass_g ~ flipper_length_mm + species + sex + bill_length_mm, data = penguins)
+
+lm4 <- lm(body_mass_g ~ flipper_length_mm + species + sex + bill_length_mm + island, data = penguins)
+
+```
+
+the lower the AIC the better balance between complexity and accuracy
+
+## Find the AIC value for each model
+
+the lower the AIC the better balance between complexity and fit
+
+```{r}
+AIC(lm1)
+AIC(lm2)
+AIC(lm3) # lowest
+AIC(lm4)
+```
+
+## use stargazer package for a table with multiple model outputs
+
+```{r, results = 'asis'}
+stargazer(lm1, lm3, lm4, type = "html")
+```
+
+## omitted variable bias
+
+simpsons paradox - reverse of interpretation if you omit a variable
+
+```{r}
+ggplot(data = penguins, aes(x = flipper_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+
+
+```{r}
+ggplot(data = penguins, aes(x = flipper_length_mm, 
+                            y = bill_depth_mm,
+                            group = species)) +
+  geom_point(aes(color = species)) +
+  geom_smooth(method = "lm")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
